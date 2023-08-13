@@ -1,0 +1,1 @@
+cmake -G "MinGW Makefiles" -DCMAKE_C_COMPILER=C:\path\to\Users\Ali Mahmoud\Desktop\Embedded Learning\Tools\avr8-gnu-toolchain-win32_x86_64\bin\avr-gcc.exe ..

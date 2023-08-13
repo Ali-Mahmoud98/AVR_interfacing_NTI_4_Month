@@ -1,0 +1,230 @@
+In archive libadc.a:
+
+adc.o:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000000  00000000  00000000  00000034  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000000  00000000  00000000  00000034  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000000  00000000  00000000  00000034  2**0
+                  ALLOC
+  3 .debug_abbrev 000000d9  00000000  00000000  00000034  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_info   00000182  00000000  00000000  0000010d  2**0
+                  CONTENTS, RELOC, READONLY, DEBUGGING
+  5 .debug_line   00000186  00000000  00000000  0000028f  2**0
+                  CONTENTS, RELOC, READONLY, DEBUGGING
+  6 .text.ADC_init 0000001a  00000000  00000000  00000415  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  7 .text.ADC_readChannel 0000001e  00000000  00000000  0000042f  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  8 .text.ADC_autoTrigger_Enable 00000016  00000000  00000000  0000044d  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  9 .text.ADC_interrupt_ENABLE 0000000c  00000000  00000000  00000463  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 10 .text.ADC_setCallBack 0000000a  00000000  00000000  0000046f  2**0
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 11 .text.ADC_falg_clear 0000000c  00000000  00000000  00000479  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 12 .text.__vector_16 0000004e  00000000  00000000  00000485  2**0
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 13 .bss.callBackFunction 00000002  00000000  00000000  000004d3  2**0
+                  ALLOC
+ 14 .debug_frame  00000080  00000000  00000000  000004d4  2**2
+                  CONTENTS, RELOC, READONLY, DEBUGGING
+ 15 .debug_loc    0000002b  00000000  00000000  00000554  2**0
+                  CONTENTS, RELOC, READONLY, DEBUGGING
+ 16 .debug_pubnames 000000b3  00000000  00000000  0000057f  2**0
+                  CONTENTS, RELOC, READONLY, DEBUGGING
+ 17 .debug_aranges 00000050  00000000  00000000  00000632  2**0
+                  CONTENTS, RELOC, READONLY, DEBUGGING
+ 18 .debug_ranges 00000048  00000000  00000000  00000682  2**0
+                  CONTENTS, RELOC, READONLY, DEBUGGING
+ 19 .debug_str    0000018c  00000000  00000000  000006ca  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text.ADC_init:
+
+00000000 <ADC_init>:
+	/* ADMUX Register Bits Description:
+	 * REFS1:0 = 00 to choose to connect external reference voltage by input this voltage through AREF pin
+	 * ADLAR   = 0 right adjusted
+	 * MUX4:0  = 00000 to choose channel 0 as initialization
+	 */
+	DDRA &= ~(1<<0); //make A0 input
+   0:	ea e3       	ldi	r30, 0x3A	; 58
+   2:	f0 e0       	ldi	r31, 0x00	; 0
+   4:	80 81       	ld	r24, Z
+   6:	8e 7f       	andi	r24, 0xFE	; 254
+   8:	80 83       	st	Z, r24
+	DDRA &= ~(1<<1); //make A1 input
+   a:	80 81       	ld	r24, Z
+   c:	8d 7f       	andi	r24, 0xFD	; 253
+   e:	80 83       	st	Z, r24
+	ADMUX = (1<<ADMUX_REFS0); // AREF=AVCC
+  10:	80 e4       	ldi	r24, 0x40	; 64
+  12:	87 b9       	out	0x07, r24	; 7
+	 * ADEN    = 1 Enable ADC
+	 * ADIE    = 0 Disable ADC Interrupt
+	 * ADATE   = 0 Disable Auto Trigger
+	 * ADPS2:0 = 011 to choose ADC_Clock = F_CPU/8 = 1Mhz/8 = 125Khz --> ADC must operate in range 50-200Khz
+	 */
+	ADCSRA = (1<<ADEN) | (1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0); //enable adc + PRrescalar div factor =128
+  14:	87 e8       	ldi	r24, 0x87	; 135
+  16:	86 b9       	out	0x06, r24	; 6
+
+}
+  18:	08 95       	ret
+
+Disassembly of section .text.ADC_readChannel:
+
+00000000 <ADC_readChannel>:
+u16 ADC_readChannel(u8 channel_num)
+{
+	/* Put Code Here */
+	u16 ADC, ADCLOW;
+	
+	ADMUX=ADMUX|(channel_num & 0x0f);	/* Set input channel to read */
+   0:	e7 e2       	ldi	r30, 0x27	; 39
+   2:	f0 e0       	ldi	r31, 0x00	; 0
+   4:	90 81       	ld	r25, Z
+   6:	8f 70       	andi	r24, 0x0F	; 15
+   8:	89 2b       	or	r24, r25
+   a:	80 83       	st	Z, r24
+	#if INTERRUPT == DISABLE
+	ADCSRA |= (1<<ADSC);		/* Start conversion */
+	while((ADCSRA&(1<<ADIF))==0);	/* Monitor end of conversion interrupt */
+	#endif
+	
+	ADCLOW = (int)ADCL;		/* Read lower byte*/
+   c:	94 b1       	in	r25, 0x04	; 4
+	ADC = (int)ADCH*256;		/* Read higher 2 bits and 
+   e:	85 b1       	in	r24, 0x05	; 5
+  10:	38 2f       	mov	r19, r24
+  12:	20 e0       	ldi	r18, 0x00	; 0
+  14:	29 0f       	add	r18, r25
+  16:	31 1d       	adc	r19, r1
+					Multiply with weight */
+	ADC += ADCLOW;				
+	
+	return ADC; /* Read the digital value from the data register */
+}
+  18:	82 2f       	mov	r24, r18
+  1a:	93 2f       	mov	r25, r19
+  1c:	08 95       	ret
+
+Disassembly of section .text.ADC_autoTrigger_Enable:
+
+00000000 <ADC_autoTrigger_Enable>:
+/**
+ * Enables automatic triggering for ADC conversions.
+ */
+void ADC_autoTrigger_Enable(void)
+{
+	SET_BIT(ADCSRA, ADATE);
+   0:	e6 e2       	ldi	r30, 0x26	; 38
+   2:	f0 e0       	ldi	r31, 0x00	; 0
+   4:	80 81       	ld	r24, Z
+   6:	80 62       	ori	r24, 0x20	; 32
+   8:	80 83       	st	Z, r24
+	SFIOR |= (ADC_TRIGGER_SRC << 5);
+   a:	e0 e5       	ldi	r30, 0x50	; 80
+   c:	f0 e0       	ldi	r31, 0x00	; 0
+   e:	80 81       	ld	r24, Z
+  10:	80 68       	ori	r24, 0x80	; 128
+  12:	80 83       	st	Z, r24
+}
+  14:	08 95       	ret
+
+Disassembly of section .text.ADC_interrupt_ENABLE:
+
+00000000 <ADC_interrupt_ENABLE>:
+/**
+ * Enables INTERRUPT for ADC conversions.
+ */
+void ADC_interrupt_ENABLE(void)
+{
+	SET_BIT(ADCSRA, ADIE);
+   0:	e6 e2       	ldi	r30, 0x26	; 38
+   2:	f0 e0       	ldi	r31, 0x00	; 0
+   4:	80 81       	ld	r24, Z
+   6:	88 60       	ori	r24, 0x08	; 8
+   8:	80 83       	st	Z, r24
+}
+   a:	08 95       	ret
+
+Disassembly of section .text.ADC_setCallBack:
+
+00000000 <ADC_setCallBack>:
+
+void ADC_setCallBack(void (*ptr2fun) (void))
+{
+	callBackFunction = ptr2fun;
+   0:	90 93 00 00 	sts	0x0000, r25
+   4:	80 93 00 00 	sts	0x0000, r24
+}
+   8:	08 95       	ret
+
+Disassembly of section .text.ADC_falg_clear:
+
+00000000 <ADC_falg_clear>:
+
+void ADC_falg_clear(void)
+{
+    SET_BIT(ADCSRA, ADIF);
+   0:	e6 e2       	ldi	r30, 0x26	; 38
+   2:	f0 e0       	ldi	r31, 0x00	; 0
+   4:	80 81       	ld	r24, Z
+   6:	80 61       	ori	r24, 0x10	; 16
+   8:	80 83       	st	Z, r24
+}
+   a:	08 95       	ret
+
+Disassembly of section .text.__vector_16:
+
+00000000 <__vector_16>:
+
+void __vector_16(void)  __attribute__((signal));
+void __vector_16(void)
+{
+   0:	1f 92       	push	r1
+   2:	0f 92       	push	r0
+   4:	0f b6       	in	r0, 0x3f	; 63
+   6:	0f 92       	push	r0
+   8:	11 24       	eor	r1, r1
+   a:	2f 93       	push	r18
+   c:	3f 93       	push	r19
+   e:	4f 93       	push	r20
+  10:	5f 93       	push	r21
+  12:	6f 93       	push	r22
+  14:	7f 93       	push	r23
+  16:	8f 93       	push	r24
+  18:	9f 93       	push	r25
+  1a:	af 93       	push	r26
+  1c:	bf 93       	push	r27
+  1e:	ef 93       	push	r30
+  20:	ff 93       	push	r31
+	callBackFunction();
+  22:	e0 91 00 00 	lds	r30, 0x0000
+  26:	f0 91 00 00 	lds	r31, 0x0000
+  2a:	09 95       	icall
+    
+  2c:	ff 91       	pop	r31
+  2e:	ef 91       	pop	r30
+  30:	bf 91       	pop	r27
+  32:	af 91       	pop	r26
+  34:	9f 91       	pop	r25
+  36:	8f 91       	pop	r24
+  38:	7f 91       	pop	r23
+  3a:	6f 91       	pop	r22
+  3c:	5f 91       	pop	r21
+  3e:	4f 91       	pop	r20
+  40:	3f 91       	pop	r19
+  42:	2f 91       	pop	r18
+  44:	0f 90       	pop	r0
+  46:	0f be       	out	0x3f, r0	; 63
+  48:	0f 90       	pop	r0
+  4a:	1f 90       	pop	r1
+  4c:	18 95       	reti
