@@ -6,7 +6,7 @@ OBJCOPY=avr-objcopy
 #disable unused funcs
 DIS_UN_FUNC = -ffunction-sections -fdata-sections
 
-CFLAGS=-x c -funsigned-char -funsigned-bitfields -DDEBUG -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega32 -c -std=gnu99 -MD -MP -MF "Main.d" -MT"Main.d" -MT"Main.o"   -o "Main.o" "main.c"
+CFLAGS=-x c -funsigned-char -funsigned-bitfields -DDEBUG -O0 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega32 -c -std=gnu99 -MD -MP -MF "Main.d" -MT"Main.d" -MT"Main.o"   -o "Main.o" "main.c"
 #**LAYERS FOLDERS
 MCALDIR=../../MCAL
 HALDIR=../../HAL
