@@ -76,13 +76,13 @@ void DIO_voidTogglePinValue(u8 Copy_u8PortId, u8 Copy_u8PinId)
         switch(Copy_u8PortId)   
         {
             case DIO_u8_PORTA: 
-                TOG_BIT(DIO_u8_PORTB_REG, Copy_u8PinId); break;   
+                TOG_BIT(DIO_u8_PORTA_REG, Copy_u8PinId); break;   
             case DIO_u8_PORTB: 
                 TOG_BIT(DIO_u8_PORTB_REG, Copy_u8PinId); break;
             case DIO_u8_PORTC: 
-                TOG_BIT(DIO_u8_PORTB_REG, Copy_u8PinId); break;
+                TOG_BIT(DIO_u8_PORTC_REG, Copy_u8PinId); break;
             case DIO_u8_PORTD: 
-                TOG_BIT(DIO_u8_PORTB_REG, Copy_u8PinId); break;
+                TOG_BIT(DIO_u8_PORTD_REG, Copy_u8PinId); break;
             
         }
     }

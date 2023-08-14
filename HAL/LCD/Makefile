@@ -1,5 +1,5 @@
 MCU=atmega32
-F_CPU=16000000UL
+F_CPU=8000000UL
 CC=avr-gcc
 OBJCOPY=avr-objcopy
 CFLAGS=-Wall -g2 -gstabs -Os -fpack-struct -fshort-enums -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=${MCU} -DF_CPU=${F_CPU} -MMD -MP -MF"lcd.d" -MT"lcd.d" -c -o"lcd.o" *.c

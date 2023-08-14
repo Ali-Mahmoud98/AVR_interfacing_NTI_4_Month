@@ -40,25 +40,25 @@ int main(void)
 
     GIE_voidGlobalInterruptEnable();
 
+    LCD_displayString_XY(0, 0, "No. of T0 OVS: ");
+    LCD_displayString_XY(1, 0, "ADC Value: ");
+
     while (1)
     {
         if(prev != sec)
         {
             prev = sec;
-            LCD_clearScreen();
-            LCD_moveCursor(0,0);
+            LCD_SendString("     ");
+            LCD_moveCursor(0,15);
             LCD_sendNumber(sec);
-            LCD_moveCursor(1,0);
-            LCD_sendNumber(val);
         }
 
         if(prev2 != val)
         {
             prev2 = val;
-            LCD_clearScreen();
-            LCD_moveCursor(0,0);
-            LCD_sendNumber(sec);
-            LCD_moveCursor(1,0);
+            // LCD_clearScreen();
+            LCD_SendString("     ");
+            LCD_moveCursor(1,11);
             LCD_sendNumber(val);
         }
     }
@@ -78,8 +78,8 @@ void sendValueToLCD(void)
 
 void tog_led(void)
 {
-    static u16 delay = 0;
-    if (delay == (u16)20)
+    static u8 delay = 0;
+    if (delay >= (u8)20)
     {
         delay = 0;
         DIO_voidTogglePinValue(DIO_u8_PORTC, DIO_u8_PIN0);
