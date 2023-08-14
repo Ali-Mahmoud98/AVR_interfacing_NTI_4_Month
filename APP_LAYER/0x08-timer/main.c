@@ -56,7 +56,6 @@ int main(void)
         if(prev2 != val)
         {
             prev2 = val;
-            // LCD_clearScreen();
             LCD_SendString("     ");
             LCD_moveCursor(1,11);
             LCD_sendNumber(val);
