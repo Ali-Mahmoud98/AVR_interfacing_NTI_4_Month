@@ -9,7 +9,7 @@
 #include "ADC_interface.h"
 #include "LCD_interface.h"
 
-u16 val = 0;
+volatile u16 val = 0;
 
 void sendValueToLCD(void);
 void tog_led(void);
@@ -17,7 +17,7 @@ void tog_led(void);
 int main(void)
 {
     u16 prev = 0;
-    DIO_voidSetPinDirection(DIO_u8_PORTC, DIO_u8_PIN0, DIO_u8_OUTPUT);
+    //DIO_voidSetPinDirection(DIO_u8_PORTA, DIO_u8_PIN6, DIO_u8_OUTPUT);
     LCD_init();
     timer0_void_init();
     ADC_init();
@@ -46,5 +46,5 @@ void sendValueToLCD(void)
 }
 
 void tog_led(void){
-
+    
 }

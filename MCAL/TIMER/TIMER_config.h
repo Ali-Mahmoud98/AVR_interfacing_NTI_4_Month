@@ -8,7 +8,7 @@
  * 3- CTC
  * 4- Fast PWM
 */
-#define TIMER0_MODE  FAST_PWM
+#define TIMER0_MODE  NORMAL
 
 /*Compare match output mode for timer0*/
 /**

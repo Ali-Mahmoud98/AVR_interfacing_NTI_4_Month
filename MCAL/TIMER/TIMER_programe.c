@@ -72,9 +72,11 @@ void timer0_void_init(void)
  * @param CompMatch The compare match mode (0 or 1) to set the preload value for.
  * @param Preload_Value The value to preload into Timer0.
  */
-void TIMER0_voidSetPreload (u8 CompMatch,u8 Preload_Value)
+void TIMER0_voidSetPreload (u8 CompMatch __attribute__((unused)) ,u8 Preload_Value)
 {
-	OCR0 = CompMatch;
+    #if COMPARE_OUT_MODE_PWM != NORMAL_PORT_OPERATION
+	    OCR0 = CompMatch;
+    #endif
 	TCNT0 = Preload_Value;
 }
 

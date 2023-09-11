@@ -9,8 +9,8 @@
 #include "ADC_interface.h"
 #include "LCD_interface.h"
 
-u8 sec = 0;
-u16 val = 0;
+volatile u8 sec = 0;
+volatile u16 val = 0;
 
 void watch(void);
 void sendValueToLCD(void);
@@ -23,19 +23,21 @@ int main(void)
     LCD_init();
 
     DIO_voidSetPinDirection(DIO_u8_PORTA, DIO_u8_PIN0, DIO_u8_INPUT);
+    DIO_voidSetPinDirection(DIO_u8_PORTA, DIO_u8_PIN6, DIO_u8_OUTPUT);
     DIO_voidSetPinDirection(DIO_u8_PORTC, DIO_u8_PIN0, DIO_u8_OUTPUT);
     timer0_void_init();
+    TIMER0_voidSetPreload(0, 112);
     init_void_timer1(NORMAL, NORMAL_OP, CLOCK_256);
 
     ADC_init();
     ADC_autoTrigger_Enable();
     ADC_setCallBack(sendValueToLCD);
 
-    setCallBack_OV_T1(watch);
+    setCallBack_OV_T1(tog_led);
     
     timer1_interrupt_ENABLE();
     timer0_Interrupt_OverFlow_Enable();
-    setCallBack_OV_T0(tog_led);
+    setCallBack_OV_T0(watch);
     ADC_interrupt_ENABLE();
 
     GIE_voidGlobalInterruptEnable();
@@ -66,7 +68,14 @@ int main(void)
 
 void watch(void)
 {
-    sec++;
+    static u16 delay = 0;
+    if (delay >= 31)
+    {
+        sec++;
+        delay = 0;
+        TIMER0_voidSetPreload(0, 123);
+    }
+    delay++;
 }
 
 void sendValueToLCD(void)
@@ -77,11 +86,5 @@ void sendValueToLCD(void)
 
 void tog_led(void)
 {
-    static u8 delay = 0;
-    if (delay >= (u8)20)
-    {
-        delay = 0;
-        DIO_voidTogglePinValue(DIO_u8_PORTC, DIO_u8_PIN0);
-    }
-    delay++;
+    DIO_voidTogglePinValue(DIO_u8_PORTA, DIO_u8_PIN6);
 }
