@@ -73,14 +73,12 @@ void __vector_1(void)  __attribute__((signal));
 void __vector_1(void)
 {
 	EXTINT_ApfuncEXTINT[EXTINT_INT0]();
-	SET_BIT(GICR, GICR_INT0);
 }
 /* ISR Function for External Interrupt 1 */
 void __vector_2(void)  __attribute__((signal));
 void __vector_2(void)
 {
 	EXTINT_ApfuncEXTINT[EXTINT_INT1]();
-	SET_BIT(GICR, GICR_INT1);
 
 }
 /* ISR Function for External Interrupt 3 */
@@ -88,7 +86,6 @@ void __vector_3(void)  __attribute__((signal));
 void __vector_3(void)
 {
 	EXTINT_ApfuncEXTINT[EXTINT_INT2]();
-	SET_BIT(GICR, GICR_INT2);
 }
 
 
